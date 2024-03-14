@@ -3,9 +3,28 @@ export interface IRegion {
   end: number;
 }
 
-export interface IAnnotation {
+export interface IUpdateRegion extends IRegion {
+  id: number;
+}
+
+export enum AnnotationType {
+  REGION = "region",
+  TRACK = "track",
+}
+
+export interface IBaseAnnotation {
+  type: AnnotationType;
+  name: string;
+  id: number;
+  attribute: object;
+}
+export interface ITrackAnnotation extends IBaseAnnotation {
+  type: AnnotationType.TRACK;
+}
+export interface IRegionAnnotation extends IBaseAnnotation {
+  type: AnnotationType.REGION;
   start: number;
   end: number;
   color: string;
-  attribute: object;
 }
+export type IAnnotation = ITrackAnnotation | IRegionAnnotation;

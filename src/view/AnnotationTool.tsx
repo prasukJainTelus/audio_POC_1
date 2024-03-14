@@ -1,6 +1,6 @@
 import { Header } from "antd/es/layout/layout";
 import AudioControlManager from "../controls/AudioControlManager";
-import { BorderOuterOutlined } from "@ant-design/icons";
+import { VerticalAlignMiddleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { Button, Row } from "antd";
 
@@ -29,7 +29,7 @@ export default function AnnotationTool({ control }: IProps) {
     <Header style={{ padding: "10px" }}>
       <Row>
         <Button type="primary" onClick={() => toggleRegion()}>
-          <BorderOuterOutlined />
+          <VerticalAlignMiddleOutlined style={{ transform: "rotate(90deg)" }} />
         </Button>
       </Row>
     </Header>

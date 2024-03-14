@@ -1,28 +1,32 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WaveSurfer from "wavesurfer.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
-import { IAnnotation, IRegion } from "../interfaces/Interface";
+import {
+  IAnnotation,
+  IRegion,
+  IRegionAnnotation,
+  IUpdateRegion,
+} from "../interfaces/Interface";
 import EventEmitter from "wavesurfer.js/dist/event-emitter.js";
 
 export type WaveFormEvents = {
   "plugin-update": [state: boolean];
-  "on-region-select": [region: number];
+  "on-region-select": [regionName: string];
+  "on-toggle-play": [play: boolean];
+  "on-region-created": [region: IRegion];
+  "on-region-updated": [region: IUpdateRegion];
 };
 
-interface IConfig {
-  onTogglePlay?: (play: boolean) => void;
-  onRegionCreated?: (region: IRegion) => void;
-}
 class WaveFormManager extends EventEmitter<WaveFormEvents> {
   private wavesurfer: WaveSurfer | undefined = undefined;
-  onTogglePlay = (play: boolean) => this.togglePlay(play);
-  onRegionCreated = (region: IRegion) => console.log(region);
 
   wsRegions: Regions;
   disableDragSelection?: () => void;
 
-  constructor(config: IConfig) {
+  constructor() {
     super();
+    const element = document.getElementById("waveform");
+    if (element) element.innerHTML = "";
     if (!this.wavesurfer)
       this.wavesurfer = WaveSurfer.create({
         container: "#waveform",
@@ -32,8 +36,6 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
         minPxPerSec: 400,
       });
     this.initiateWavesurfer();
-    if (config.onTogglePlay) this.onTogglePlay = config.onTogglePlay;
-    if (config.onRegionCreated) this.onRegionCreated = config.onRegionCreated;
     this.wsRegions = this.wavesurfer.registerPlugin(Regions.create());
   }
 
@@ -78,9 +80,12 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
   private enableRegionClick() {
     if (!this.wavesurfer) return;
     this.wsRegions.on("region-clicked", (region) => {
-      region.play();
-      this.emit("on-region-select", parseInt(region.id));
-      this.wsRegions.once("region-out", () => this.onTogglePlay(false));
+      this.emit("on-region-select", region.id);
+      this.wsRegions.once("region-out", () =>
+        this.emit("on-toggle-play", false)
+      );
+      this.wavesurfer?.setTime(region.start);
+      this.wavesurfer?.play();
     });
   }
 
@@ -92,46 +97,57 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
     this.wsRegions.on("region-updated", () => {});
   }
 
-  public enableRegionActions() {
-    if (!this.wavesurfer) return;
-    this.enableCreateAction();
-  }
-
   enableUpdateAction() {
     this.wsRegions.on("region-updated", (region) => {
       region.remove();
-      this.onRegionCreated({
+      this.emit("on-region-updated", {
         start: region.start,
         end: region.end,
+        id: parseInt(region.id),
       });
     });
   }
   enableCreateAction() {
-    this.wsRegions.once("region-created", (region) => {
-      console.log("region", region);
+    this.wsRegions.unAll();
 
+    this.wsRegions.once("region-created", (region) => {
       region.remove();
       this.wsRegions.unAll();
       this.disableRegion();
 
-      this.onRegionCreated({
+      this.emit("on-region-created", {
         start: region.start,
         end: region.end,
       });
     });
   }
-  public updateRegions(regions: IAnnotation[]) {
+  public updateRegions(regions: IRegionAnnotation[]) {
     if (!this.wavesurfer) return;
     this.wsRegions.clearRegions();
-    regions.forEach((region, index) => {
+    this.disableRegionActions();
+    regions.forEach((region) => {
       this.wsRegions.addRegion({
         start: region.start,
         end: region.end,
         color: region.color,
-        id: "" + index,
+        id: region.name,
       });
 
       this.enableRegionClick();
+    });
+  }
+
+  public setActiveAnnotation(annotation: IAnnotation | undefined) {
+    if (!this.wavesurfer) return;
+    this.wsRegions.getRegions().forEach((region) => {
+      region.remove();
+      this.wsRegions.addRegion({
+        ...region,
+        color:
+          region.id === annotation?.name
+            ? "rgba(0,255, 0, 0.5)"
+            : "rgba(255, 0, 0, 0.1)",
+      });
     });
   }
 }

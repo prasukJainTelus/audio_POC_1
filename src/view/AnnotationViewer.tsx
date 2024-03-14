@@ -8,31 +8,42 @@ interface IProps {
 
 export default function AnnotationViewer({ control }: IProps) {
   const [items, setItems] = useState<CollapseProps["items"]>([]);
-  const [activeIndex, setActiveIndex] = useState<number>();
+  const [activeKey, setActiveKey] = useState<string>();
 
+  function onAnnotationSelect(e: string | Array<string>) {
+    if (Array.isArray(e)) {
+      if (e.length) control.setActiveAnnotationName(e[0]);
+      else control.setActiveAnnotation(undefined);
+    } else control.setActiveAnnotationName(e);
+  }
   useEffect(() => {
     const anns = control.getAnnotations();
-    const its = anns.map((a, i) => {
+    const its = anns.map((a) => {
       return {
-        key: i,
-        label: `Anotation ${i}`,
+        key: a.name,
+        label: a.name,
         children: <p>{JSON.stringify(a)}</p>,
       };
     });
     setItems(its);
     control.on("annotations-updated", (anns) => {
-      const its = anns.map((a, i) => {
+      const its = anns.map((a) => {
         return {
-          key: i,
-          label: `Anotation ${i}`,
+          key: a.name,
+          label: a.name,
           children: <p>{JSON.stringify(a)}</p>,
         };
       });
-      console.log(its);
-
       setItems(its);
     });
-    control.on("set-active-annotation", (index) => setActiveIndex(index));
+    control.on("set-active-annotation", (index) => setActiveKey(index?.name));
   }, [control]);
-  return <Collapse accordion items={items} activeKey={activeIndex} />;
+  return (
+    <Collapse
+      accordion
+      items={items}
+      activeKey={activeKey}
+      onChange={(e) => onAnnotationSelect(e)}
+    />
+  );
 }
