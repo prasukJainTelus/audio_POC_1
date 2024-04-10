@@ -1,5 +1,5 @@
 import { Header } from "antd/es/layout/layout";
-import AudioControlManager from "../controls/AudioControlManager";
+import AudioControlManager from "../workspace/AudioWorkspace";
 import { VerticalAlignMiddleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { Button, Row } from "antd";

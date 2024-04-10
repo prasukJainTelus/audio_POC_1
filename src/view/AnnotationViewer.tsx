@@ -1,5 +1,5 @@
 import { Collapse, CollapseProps } from "antd";
-import AudioControlManager from "../controls/AudioControlManager";
+import AudioControlManager from "../workspace/AudioWorkspace";
 import { useEffect, useState } from "react";
 
 interface IProps {
@@ -36,7 +36,9 @@ export default function AnnotationViewer({ control }: IProps) {
       });
       setItems(its);
     });
-    control.on("set-active-annotation", (index) => setActiveKey(index?.name));
+    control.on("set-active-annotation", (annotation) =>
+      setActiveKey(annotation?.name)
+    );
   }, [control]);
   return (
     <Collapse

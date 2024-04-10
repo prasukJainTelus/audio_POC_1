@@ -7,7 +7,7 @@ import {
   ZoomOutOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Layout, Row } from "antd";
-import AudioControlManager from "../controls/AudioControlManager";
+import AudioControlManager from "../workspace/AudioWorkspace";
 import { useEffect, useState } from "react";
 
 interface IProps {
@@ -32,7 +32,11 @@ export default function AudioPlayer({ control }: IProps) {
   }
   return (
     <Layout style={{ padding: "50px", height: "100%" }}>
-      <div id="waveform"></div>
+      <div style={{ overflow: "auto", width: "100%" }}>
+        <div id="waveform">
+          <div id="waveform-timeline"></div>
+        </div>
+      </div>
       <Row>
         <Col span={1}>
           {control.isPlaying ? (

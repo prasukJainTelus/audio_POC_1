@@ -4,7 +4,7 @@ export interface IRegion {
 }
 
 export interface IUpdateRegion extends IRegion {
-  id: number;
+  name: string;
 }
 
 export enum AnnotationType {

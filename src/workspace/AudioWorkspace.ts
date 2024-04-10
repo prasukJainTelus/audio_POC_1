@@ -1,7 +1,7 @@
 import EventEmitter from "wavesurfer.js/dist/event-emitter.js";
 import { IAnnotation, IRegion, IUpdateRegion } from "../interfaces/Interface";
-import AnnotationManager from "./AnnotationManager";
-import WaveFormManager from "./WaveFormManager";
+import AnnotationManager from "./managers/AnnotationManager";
+import WaveFormManager from "./managers/WaveFormManager";
 
 export type ControlEvents = {
   "annotations-updated": [annotations: IAnnotation[]];
@@ -9,7 +9,7 @@ export type ControlEvents = {
   "set-active-annotation": [annotation: IAnnotation | undefined];
 };
 
-class AudioControlManager extends EventEmitter<ControlEvents> {
+class AudioWorkspace extends EventEmitter<ControlEvents> {
   private waveFormManager?: WaveFormManager;
   private annotationManager?: AnnotationManager;
   public isPlaying = false;
@@ -109,4 +109,4 @@ class AudioControlManager extends EventEmitter<ControlEvents> {
   }
 }
 
-export default AudioControlManager;
+export default AudioWorkspace;

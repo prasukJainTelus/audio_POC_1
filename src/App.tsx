@@ -4,7 +4,7 @@ import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import { contentStyle, layoutStyle, siderStyle } from "./App.style";
 import { useEffect, useState } from "react";
-import AudioControlManager from "./controls/AudioControlManager";
+import AudioControlManager from "./workspace/AudioWorkspace";
 import AudioPlayer from "./view/AudioPlayer";
 import AnnotationTool from "./view/AnnotationTool";
 import AnnotationViewer from "./view/AnnotationViewer";

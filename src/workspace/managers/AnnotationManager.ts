@@ -4,7 +4,7 @@ import {
   IRegion,
   IRegionAnnotation,
   IUpdateRegion,
-} from "../interfaces/Interface";
+} from "../../interfaces/Interface";
 
 interface IConfig {
   onAnnotationUpdate?: (annotation: IAnnotation[]) => void;
@@ -51,7 +51,9 @@ class AnnotationManager {
   }
 
   public updateAnnotation(annotation: IUpdateRegion) {
-    const selectedAnnotation = this.annotations[annotation.id];
+    const selectedAnnotation = this.annotations.find(
+      (e) => e.name === annotation.name
+    );
     if (
       !selectedAnnotation ||
       selectedAnnotation.type !== AnnotationType.REGION

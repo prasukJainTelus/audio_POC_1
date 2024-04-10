@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WaveSurfer from "wavesurfer.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
+import TimelinePlugin from "wavesurfer.js/dist/plugins/timeline.esm.js";
+import Minimap from "wavesurfer.js/dist/plugins/minimap.esm.js";
+
 import {
   IAnnotation,
   IRegion,
   IRegionAnnotation,
   IUpdateRegion,
-} from "../interfaces/Interface";
+} from "../../interfaces/Interface";
 import EventEmitter from "wavesurfer.js/dist/event-emitter.js";
 
 export type WaveFormEvents = {
@@ -26,7 +29,10 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
   constructor() {
     super();
     const element = document.getElementById("waveform");
-    if (element) element.innerHTML = "";
+    if (element)
+      element.innerHTML = `
+        <div id="waveform-timeline"></div>
+    `;
     if (!this.wavesurfer)
       this.wavesurfer = WaveSurfer.create({
         container: "#waveform",
@@ -34,8 +40,27 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
         barHeight: 1,
         mediaControls: false,
         minPxPerSec: 400,
+        plugins: [
+          Minimap.create({
+            height: 20,
+            waveColor: "red",
+            progressColor: "red",
+          }),
+          TimelinePlugin.create({
+            height: 20,
+            insertPosition: "beforebegin",
+            timeInterval: 0.1,
+            primaryLabelInterval: 1,
+            secondaryLabelInterval: 0.1,
+            style: {
+              fontSize: "20px",
+              color: "red",
+            },
+          }),
+        ],
       });
     this.initiateWavesurfer();
+
     this.wsRegions = this.wavesurfer.registerPlugin(Regions.create());
   }
 
@@ -84,6 +109,7 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
       this.wsRegions.once("region-out", () =>
         this.emit("on-toggle-play", false)
       );
+      this.enableUpdateAction();
       this.wavesurfer?.setTime(region.start);
       this.wavesurfer?.play();
     });
@@ -103,7 +129,7 @@ class WaveFormManager extends EventEmitter<WaveFormEvents> {
       this.emit("on-region-updated", {
         start: region.start,
         end: region.end,
-        id: parseInt(region.id),
+        name: region.id,
       });
     });
   }
